@@ -7,6 +7,7 @@ import bodyParser from "body-parser";
 import webpush from 'web-push'
 import todosRoute from "./routes/todosRoute";
 import authRoute from "./routes/authRoute";
+import cookieParser from 'cookie-parser'
 
 mongoose
     .connect(process.env.MONGO_URI || "")
@@ -27,17 +28,16 @@ webpush.setVapidDetails(
 const app: Application = express();
 const port = process.env.PORT || 6969;
 
+app.use(cookieParser());
 app.use(
     cors({
         origin: true,
         credentials: true,
     })
 );
-
 app.use(bodyParser.json());
 
 app.use("/todos", todosRoute);
 app.use("/auth", authRoute);
-// app.use("/subscriptions", subscriptionsController);
 
 app.listen(port, () => console.log("Server is running on port ", port));

@@ -23,6 +23,8 @@ export async function showUser(username: string) {
 	}
 
 	const user = await userModel.findOne({username});
+
+	console.log(user);
 	
 	if (!user){
 		throw new Error("Invlaid username");

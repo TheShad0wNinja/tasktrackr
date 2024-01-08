@@ -29,6 +29,7 @@ authRoute.post(
             });
         }
 
+
         let user;
 
         try {
@@ -56,6 +57,7 @@ authRoute.post(
 
         const token = jwt.sign(
             {
+				userId: user._id,
                 username: user.username,
             },
             process.env.JWT_KEY || "randomkey",
@@ -67,6 +69,8 @@ authRoute.post(
         res.status(204)
             .cookie("access_token", token, {
                 maxAge: tokenDuration,
+				secure: process.env.NODE_ENV === 'prod',
+				httpOnly: true,
             })
             .json({ success: true });
     }
