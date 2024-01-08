@@ -22,7 +22,7 @@ export async function createTodo({
         task: task || "",
     });
 
-    newTodo.save();
+    await newTodo.save();
     return newTodo;
 }
 

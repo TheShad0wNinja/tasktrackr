@@ -3,9 +3,10 @@ import express, { Application } from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import bodyParser from "body-parser";
-import subscriptionsController from "./controllers/subscriptions"
+// import subscriptionsController from "./controllers/subscriptions"
 import webpush from 'web-push'
 import todosRoute from "./routes/todosRoute";
+import authRoute from "./routes/authRoute";
 
 mongoose
     .connect(process.env.MONGO_URI || "")
@@ -36,6 +37,7 @@ app.use(
 app.use(bodyParser.json());
 
 app.use("/todos", todosRoute);
-app.use("/subscriptions", subscriptionsController);
+app.use("/auth", authRoute);
+// app.use("/subscriptions", subscriptionsController);
 
 app.listen(port, () => console.log("Server is running on port ", port));
