@@ -4,6 +4,7 @@ import multer from "multer";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
+import { checkToken, createToken } from "@/util/jwt";
 
 const authRoute = Router();
 
@@ -29,7 +30,6 @@ authRoute.post(
             });
         }
 
-
         let user;
 
         try {
@@ -53,27 +53,31 @@ authRoute.post(
             });
         }
 
-        const tokenDuration = 60 * 5;
+        const token = createToken(user._id.toString());
 
-        const token = jwt.sign(
-            {
-				userId: user._id,
-                username: user.username,
-            },
-            process.env.JWT_KEY || "randomkey",
-            {
-                expiresIn: tokenDuration,
-            }
-        );
-
-        res.status(204)
+        res.status(200)
             .cookie("access_token", token, {
-                maxAge: tokenDuration,
-				secure: process.env.NODE_ENV === 'prod',
-				httpOnly: true,
+                httpOnly: false,
+                secure: process.env.NODE_ENV === "prod",
             })
-            .json({ success: true });
+            .json({ success: true, data: token });
     }
 );
+
+authRoute.get("/me", multer().none(), (req: Request, res: Response) => {
+    const [token, err] = checkToken(req.cookies?.access_token);
+
+    if (err !== null) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid authentication",
+        });
+    }
+
+    res.status(200).json({
+        success: true,
+        data: token,
+    });
+});
 
 export default authRoute;

@@ -7,31 +7,20 @@ import {
 } from "@/controllers/todoController";
 import express, { Request, Response } from "express";
 import multer from "multer";
-import jwt, { JwtPayload } from "jsonwebtoken";
-declare module "jsonwebtoken" {
-    export interface JwtPayload {
-        userId: string;
-        username: string;
-    }
-}
+import "dotenv/config";
+import { checkToken } from "@/util/jwt";
 
 const todosRoute = express.Router();
 
-function checkJwt(req: Request, res: Response) {
-    const token = jwt.decode(req.cookies?.access_token) as JwtPayload;
+todosRoute.get("/", async (req: Request, res: Response) => {
+    const [token, err] = checkToken(req.cookies?.access_token);
 
-    if (!token) {
-        res.status(400).json({
+    if (err !== null) {
+        return res.status(400).json({
             success: false,
-            message: "Invalid authentication",
+            message: err.message,
         });
     }
-
-    return token;
-}
-
-todosRoute.get("/", async (req: Request, res: Response) => {
-    const token = checkJwt(req, res);
 
     indexTodos(token.userId)
         .then((todos) =>
@@ -40,24 +29,25 @@ todosRoute.get("/", async (req: Request, res: Response) => {
                 data: todos,
             })
         )
-        .catch((err) => {
-            console.error(err);
+        .catch(() => {
             return res.status(500).json({
                 success: false,
-                message: "Unable to retreive data",
+                message: "Unable to retrieve data",
             });
         });
 });
 
 todosRoute.post("/", multer().none(), async (req: Request, res: Response) => {
-    const token = jwt.decode(req.cookies?.access_token) as jwt.JwtPayload;
+    const [token, err] = checkToken(req.cookies?.access_token);
 
-    if (!token) {
+    if (err !== null) {
         return res.status(400).json({
             success: false,
-            message: "Invalid authentication",
+            message: err.message,
         });
     }
+
+	console.log(req.body);
 
     createTodo(token.userId, { ...req.body })
         .then((todo) =>
@@ -76,12 +66,12 @@ todosRoute.post("/", multer().none(), async (req: Request, res: Response) => {
 });
 
 todosRoute.get("/:id", async (req: Request, res: Response) => {
-    const token = jwt.decode(req.cookies?.access_token) as JwtPayload;
+    const [token, err] = checkToken(req.cookies?.access_token);
 
-    if (!token) {
+    if (err !== null) {
         return res.status(400).json({
             success: false,
-            message: "Invalid authentication",
+            message: err.message,
         });
     }
 
@@ -101,7 +91,14 @@ todosRoute.get("/:id", async (req: Request, res: Response) => {
 });
 
 todosRoute.put("/:id", multer().none(), async (req: Request, res: Response) => {
-    const token = checkJwt(req, res);
+    const [token, err] = checkToken(req.cookies?.access_token);
+
+    if (err !== null) {
+        return res.status(400).json({
+            success: false,
+            message: err.message,
+        });
+    }
 
     editTodo(token.userId, req.params.id, req.body)
         .then((todo) =>
@@ -119,7 +116,14 @@ todosRoute.put("/:id", multer().none(), async (req: Request, res: Response) => {
 });
 
 todosRoute.delete("/:id", async (req: Request, res: Response) => {
-    const token = checkJwt(req, res);
+    const [token, err] = checkToken(req.cookies?.access_token);
+
+    if (err !== null) {
+        return res.status(400).json({
+            success: false,
+            message: err.message,
+        });
+    }
 
     destroyTodo(token.userId, req.params.id)
         .then(() =>
