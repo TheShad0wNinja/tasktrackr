@@ -29,11 +29,7 @@ const app: Application = express();
 const port = process.env.PORT || 6969;
 
 app.use(cookieParser());
-app.use(
-    cors({
-        credentials: true,
-    })
-);
+app.use(cors({ origin: true, credentials: true }));
 app.use(bodyParser.json());
 
 app.use("/todos", todosRoute);

@@ -60,7 +60,10 @@ authRoute.post(
                 httpOnly: false,
                 secure: process.env.NODE_ENV === "prod",
             })
-            .json({ success: true, data: token });
+            .json({
+                success: true,
+                data: { token, username: user.username, userId: user.id },
+            });
     }
 );
 

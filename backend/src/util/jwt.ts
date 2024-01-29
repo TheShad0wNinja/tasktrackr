@@ -24,7 +24,7 @@ export function checkToken(token: string): Result<jwt.JwtPayload, Error> {
 }
 
 export function createToken(userId: string) {
-    const tokenDuration = 60 * 1;
+    const tokenDuration = 60 * 60;
 
     const token = jwt.sign({ userId }, process.env.JWT_KEY || "randomkey", {
         expiresIn: tokenDuration,

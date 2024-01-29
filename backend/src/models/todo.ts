@@ -4,7 +4,7 @@ const schema = new Schema(
     {
 		userId: {type: Schema.Types.ObjectId, ref: 'User'},
         title: { type: String, required: true },
-        task: { type: String, required: false},
+        description: { type: String, required: false},
         completed: { type: Boolean, required: true, default: false },
         lastNotify: { type: Date, default: Date.now },
     },

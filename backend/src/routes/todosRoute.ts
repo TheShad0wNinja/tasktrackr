@@ -47,8 +47,6 @@ todosRoute.post("/", multer().none(), async (req: Request, res: Response) => {
         });
     }
 
-	console.log(req.body);
-
     createTodo(token.userId, { ...req.body })
         .then((todo) =>
             res.status(200).json({
@@ -101,10 +99,9 @@ todosRoute.put("/:id", multer().none(), async (req: Request, res: Response) => {
     }
 
     editTodo(token.userId, req.params.id, req.body)
-        .then((todo) =>
-            res.status(200).json({
+        .then(() =>
+            res.status(203).json({
                 success: true,
-                data: todo,
             })
         )
         .catch((err) =>
